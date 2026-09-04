@@ -1,0 +1,12 @@
+
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: root
+    password:
+    jdbc:
+      url: jdbc:postgresql://localhost:26257/payment-gateway?sslmode=disable
+
+  hibernate-orm:
+    schema-management:
+      strategy: none
