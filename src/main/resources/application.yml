@@ -2,11 +2,32 @@
 quarkus:
   datasource:
     db-kind: postgresql
-    username: root
-    password:
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
     jdbc:
-      url: jdbc:postgresql://localhost:26257/payment-gateway?sslmode=disable
+      url: ${DB_URL:jdbc:postgresql://localhost:26257/payment-gateway?sslmode=disable}
 
   hibernate-orm:
     schema-management:
       strategy: none
+
+kafka:
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+mp:
+  messaging:
+    outgoing:
+      test-events-out:
+        connector: smallrye-kafka
+        topic: test.events
+        value:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    incoming:
+      test-events-in:
+        connector: smallrye-kafka
+        topic: test.events
+        broadcast: true
+        value:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer

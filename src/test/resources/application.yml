@@ -1,0 +1,11 @@
+
+kafka:
+  bootstrap:
+    servers:
+
+quarkus:
+  kafka:
+    devservices:
+      enabled: true
+      topic-partitions:
+        test.events: 1

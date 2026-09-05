@@ -1,20 +1,15 @@
 package com.quas.payment;
 
-import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 class HealthResourceTest {
     @Test
     void testHealthEndpoint() {
-        given()
-          .when()
-                .get("/health")
-          .then()
-             .statusCode(200)
-             .body("status", is("UP"));
+        given().when().get("/health").then().statusCode(200).body("status", is("UP"));
     }
 }
