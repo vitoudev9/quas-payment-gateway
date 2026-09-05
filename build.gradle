@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.quarkus'
+    id 'com.diffplug.spotless' version '7.2.1'
 }
 
 repositories {
@@ -23,9 +24,12 @@ dependencies {
     // --- Kafka ---
     implementation 'io.quarkus:quarkus-messaging-kafka'
 
+    // --- Observability ---
+    implementation 'io.quarkus:quarkus-smallrye-health'
+
 
     // --- Test ---
-    testImplementation 'io.quarkus:quarkus-junit'
+    testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 }
@@ -45,4 +49,13 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+spotless {
+    java {
+        palantirJavaFormat('2.96.0')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

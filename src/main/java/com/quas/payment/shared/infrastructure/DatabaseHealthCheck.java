@@ -2,25 +2,25 @@ package com.quas.payment.shared.infrastructure;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-
+@Readiness
 @ApplicationScoped
-public class DatabaseHealthCheck {
-
-    private final DataSource dataSource;
+public class DatabaseHealthCheck implements HealthCheck {
 
     @Inject
-    public DatabaseHealthCheck(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    EntityManager entityManager;
 
-    public boolean isDatabaseUp() {
-        try (Connection connection = dataSource.getConnection()) {
-            return connection.isValid(2);
+    @Override
+    public HealthCheckResponse call() {
+        try {
+            entityManager.createNativeQuery("SELECT 1").getSingleResult();
+            return HealthCheckResponse.up("Database is up");
         } catch (Exception e) {
-            return false;
+            return HealthCheckResponse.down("Database is down: " + e.getMessage());
         }
     }
 }
