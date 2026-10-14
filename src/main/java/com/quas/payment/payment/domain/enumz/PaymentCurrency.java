@@ -1,4 +1,4 @@
-package com.quas.payment.payment.domain;
+package com.quas.payment.payment.domain.enumz;
 
 import java.util.Arrays;
 

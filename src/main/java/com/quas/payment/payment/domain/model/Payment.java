@@ -1,4 +1,8 @@
-package com.quas.payment.payment.domain;
+package com.quas.payment.payment.domain.model;
+
+import com.quas.payment.payment.domain.enumz.PaymentCurrency;
+import com.quas.payment.payment.domain.enumz.PaymentStatus;
+import com.quas.payment.payment.domain.exception.InvalidPaymentTransitionException;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -85,38 +89,38 @@ public class Payment {
     }
 
     public void moveToPending() {
-        requireStatus(PaymentStatus.CREATED);
+        requireStatus(PaymentStatus.CREATED, PaymentStatus.PENDING);
         status = PaymentStatus.PENDING;
         touch();
     }
 
     public void startProcessing() {
-        requireStatus(PaymentStatus.PENDING);
+        requireStatus(PaymentStatus.PENDING,  PaymentStatus.PROCESSING);
         status = PaymentStatus.PROCESSING;
         touch();
     }
 
     public void succeed() {
-        requireStatus(PaymentStatus.PROCESSING);
+        requireStatus(PaymentStatus.PROCESSING,  PaymentStatus.SUCCEEDED);
         status = PaymentStatus.SUCCEEDED;
         touch();
     }
 
     public void fail() {
-        requireStatus(PaymentStatus.PROCESSING);
+        requireStatus(PaymentStatus.PROCESSING,  PaymentStatus.FAILED);
         status = PaymentStatus.FAILED;
         touch();
     }
 
     public void refund() {
-        requireStatus(PaymentStatus.SUCCEEDED);
+        requireStatus(PaymentStatus.SUCCEEDED, PaymentStatus.REFUNDED);
         status = PaymentStatus.REFUNDED;
         touch();
     }
 
-    private void requireStatus(PaymentStatus expected) {
-        if (status != expected) {
-            throw new IllegalStateException("Payment cannot transition from " + status + " to " + expected);
+    private void requireStatus(PaymentStatus expectedCurrent, PaymentStatus requestedNext) {
+        if (status != expectedCurrent) {
+            throw new InvalidPaymentTransitionException(status, requestedNext);
         }
     }
 
