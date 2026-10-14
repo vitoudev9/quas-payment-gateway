@@ -1,7 +1,9 @@
 package com.quas.payment.payment.domain;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Payment {
@@ -14,16 +16,40 @@ public class Payment {
     private PaymentStatus status;
     private final Instant createdAt;
     private Instant updatedAt;
+    private final Clock clock;
 
-    public Payment(UUID id, String merchantId, BigDecimal amount, String currency, String idempotencyKey) {
-        this.id = id;
+    public Payment(UUID id, String merchantId, BigDecimal amount, String currency, String idempotencyKey, Clock clock) {
+
+        this.id = Objects.requireNonNull(id, "ID must not be null");
+
+        if (merchantId == null || merchantId.isBlank()) {
+            throw new IllegalArgumentException("Merchant ID must not be blank");
+        }
+
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Payment amount must be greater than zero");
+        }
+
+        PaymentCurrency paymentCurrency = PaymentCurrency.fromCode(currency);
+
+        if (amount.scale() > paymentCurrency.fractionDigits()) {
+            throw new IllegalArgumentException("Payment amount has too many decimal places for " + currency);
+        }
+
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            throw new IllegalArgumentException("Idempotency Key must not be blank");
+        }
+
+        Instant now = Instant.now(clock);
+
         this.merchantId = merchantId;
         this.amount = amount;
         this.currency = currency;
         this.idempotencyKey = idempotencyKey;
         this.status = PaymentStatus.CREATED;
-        this.createdAt = Instant.now();
-        this.updatedAt = createdAt;
+        this.createdAt = now;
+        this.updatedAt = now;
+        this.clock = Objects.requireNonNull(clock, "Clock must not be null");
     }
 
     public UUID getId() {
@@ -95,6 +121,6 @@ public class Payment {
     }
 
     private void touch() {
-        updatedAt = Instant.now();
+        updatedAt = Instant.now(clock);
     }
 }
